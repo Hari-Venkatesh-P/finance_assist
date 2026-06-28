@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 
 from routers.email_router import router as email_router
 from routers.injestion_router import router as injestion_router
@@ -11,7 +12,6 @@ load_dotenv()
 
 app = FastAPI()
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,6 +19,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/", response_class=HTMLResponse)
+async def home():
+    with open("templates/chatbot.html", "r") as f:
+        return f.read()
 
 @app.get("/health")
 def health():
@@ -29,4 +34,3 @@ def health():
 app.include_router(email_router)
 app.include_router(injestion_router)
 app.include_router(chat_router)
-
