@@ -6,12 +6,12 @@ from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 
 load_dotenv()
+print(os.getenv("GEMINI_API_KEY"))
+
 
 # -----------------------------------
 # Load Embeddings Model
 # -----------------------------------
-
-print(os.getenv("GEMINI_API_KEY"))
 
 embeddings = GoogleGenerativeAIEmbeddings(
     model="models/gemini-embedding-001", google_api_key=os.getenv("GEMINI_API_KEY")
@@ -36,7 +36,7 @@ retriever = vectorstore.as_retriever(search_kwargs={"k": vectorstore.index.ntota
 # -----------------------------------
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash", google_api_key=os.getenv("GEMINI_API_KEY"), temperature=0
+    model="gemini-2.5-flash-lite", google_api_key=os.getenv("GEMINI_API_KEY"), temperature=0
 )
 
 
@@ -82,10 +82,12 @@ def invoke_llm_with_loader(prompt):
 
 def chat(question: str):
 
+    if len(question.strip()) == 0:
+        return "Question cannot be empty"
+
     docs = retriever.invoke(question)
 
     context = "\n\n".join(doc.page_content for doc in docs)
-    # print(context)
 
     prompt = f"""
 You are Finance Assist, an intelligent personal finance assistant.
@@ -167,10 +169,6 @@ Behavior Guidelines:
 Answer:
 """
 
-    # response = llm.invoke(prompt)
-
-    # answer = response.content
-
     answer = invoke_llm_with_loader(prompt)
 
     return answer
@@ -180,14 +178,14 @@ Answer:
 # CLI
 # -----------------------------------
 
-while True:
+# while True:
 
-    question = input("\nYou: ")
+#     question = input("\nYou: ")
 
-    if question.lower() == "exit":
-        break
+#     if question.lower() == "exit":
+#         break
 
-    answer = chat(question)
+#     answer = chat(question)
 
-    print("\nAssistant:")
-    print(answer)
+#     print("\nAssistant:")
+#     print(answer)

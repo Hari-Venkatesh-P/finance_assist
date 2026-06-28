@@ -1,4 +1,5 @@
 from googleapiclient.discovery import build
+from fastapi import HTTPException
 import os
 
 from helpers.gmail_auth import gmail_credentials
@@ -15,10 +16,6 @@ def get_label_id(label_name):
         if label["name"] == label_name:
             return label["id"]
     return None
-
-
-from fastapi import HTTPException
-import os
 
 
 def get_emails():
