@@ -10,14 +10,14 @@ from fastapi import HTTPException
 
 def injest_data():
     try:
-        emails = get_emails()
-
+        data = get_emails()
+        emails = data.get("data", [])
         docs = []
         for email in emails:
             text = email_to_embedding_text(email)
-
             if text and len(text) > 0:
-                docs.append(Document(page_content=text))
+                print(text + "\n")
+                docs.append(Document(id=email.get("id", ""), page_content=text))
 
         create_faiss_index(docs)
 
@@ -26,6 +26,7 @@ def injest_data():
             "message": "FAISS index created successfully",
             "emails_processed": len(emails),
             "documents_indexed": len(docs),
+            "docs": docs,
         }
 
     except Exception as e:

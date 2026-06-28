@@ -1,7 +1,7 @@
 from google import genai
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
-import base64
+import base64, re
 from bs4 import BeautifulSoup
 
 
@@ -42,16 +42,14 @@ def email_to_embedding_text(email) -> str:
     if email is None:
         return ""
 
-    parts = []
+    text = ""
     email_body = email["payload"]
     try:
-        parts.append(extract_email_body(email_body))
+        text = extract_email_body(email_body)
     except Exception:
-        parts.append(email.get("snippet", "Unknown"))
+        text = email.get("snippet", "Unknown")
 
-    print(parts)
-
-    return "\n".join(parts)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def create_faiss_index(docs):
