@@ -18,25 +18,23 @@ embeddings = GoogleGenerativeAIEmbeddings(
 )
 
 # -----------------------------------
-# Load Vector Store
+# Vector Store
 # -----------------------------------
 
-vectorstore = FAISS.load_local(
-    "finance_index", embeddings, allow_dangerous_deserialization=True
-)
+def get_vectorstore():
+    return FAISS.load_local(
+        "finance_index", embeddings, allow_dangerous_deserialization=True
+    )
 
-retriever = vectorstore.as_retriever(search_kwargs={"k": vectorstore.index.ntotal})
-# docs = vectorstore.similarity_search(
-#     question,
-#     k=vectorstore.index.ntotal
-# )
 
 # -----------------------------------
 # LLM
 # -----------------------------------
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash-lite", google_api_key=os.getenv("GEMINI_API_KEY"), temperature=0
+    model="gemini-2.5-flash-lite",
+    google_api_key=os.getenv("GEMINI_API_KEY"),
+    temperature=0,
 )
 
 
@@ -84,6 +82,15 @@ def chat(question: str):
 
     if len(question.strip()) == 0:
         return "Question cannot be empty"
+
+    vectorstore = get_vectorstore()
+
+    retriever = vectorstore.as_retriever(search_kwargs={"k": vectorstore.index.ntotal})
+
+    # docs = vectorstore.similarity_search(
+    #     question,
+    #     k=vectorstore.index.ntotal
+    # )
 
     docs = retriever.invoke(question)
 
